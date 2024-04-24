@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Advanced Order Export For WooCommerce - Add configurator items as columns
-Version: 1.0.0
+Version: 1.0.1
 Author: Marc
 Requires at least: 4.9
 Tested up to: 6.5
@@ -24,6 +24,7 @@ class MKL_Export_Fields {
 		add_filter( "woe_fetch_order_products", [ $this, 'populate_fields' ], 10, 5 );
 
 		add_filter( 'mkl_pc_layer_default_settings', array( $this, 'configurator_layer_settings' ), 200 );
+		add_filter( 'mkl_pc_choice_default_settings', array( $this, 'configurator_choice_settings' ), 200 );
 	}
 
 	/**
@@ -38,6 +39,23 @@ class MKL_Export_Fields {
 			'type' => 'text',
 			'priority' => 46,
 			'condition' => '!data.not_a_choice',
+			'section' => 'advanced',
+		);
+		return $settings;
+	}
+
+	/**
+	 * Add a setting to the admin 
+	 *
+	 * @param array $settings
+	 * @return array
+	 */
+	public function configurator_choice_settings( $settings ) {
+		$settings['aoe_column_id'] = array(
+			'label' => __('Advanced Order Export Column ID', 'product-configurator-for-woocommerce' ),
+			'type' => 'text',
+			'priority' => 46,
+			'condition' => '!data.not_a_choice && "form" == data.layer_type',
 			'section' => 'advanced',
 		);
 		return $settings;
@@ -76,8 +94,15 @@ class MKL_Export_Fields {
 			if ( $config_data = $line_items[$item_id]->get_meta( '_configurator_data' ) ) {
 				$rwc = $line_items[$item_id]->get_meta( '_configurator_data_raw' );
 				foreach( $config_data as $item_index => $selection ) {
-					// Use the layer ID as export field
+
+					// Export ID
 					$id = $selection->get_layer( 'aoe_column_id' );
+
+					// Form fields
+					if ( ! $id && 'form' === $selection->get_layer( 'type' ) ) {
+						$id = $selection->get_choice( 'aoe_column_id' );
+					}
+
 					// If the layer ID is empty, try compiling an ID by replacing spaces in the layer name
 					if ( ! $id ) {
 						$id = trim( $selection->get_layer( 'name' ) );
@@ -92,6 +117,8 @@ class MKL_Export_Fields {
 							if ( $selection->get( 'field_value' ) ) {
 								if ( in_array( $selection->get_choice( 'text_field_type' ),[ 'select', 'radio' ] ) ) {
 									$product[$id] = $selection->get( 'option_label' );
+								} elseif ( 'calculation' == $selection->get_choice( 'text_field_type' ) ) {
+									$product[$id] = $selection->get( 'extra_price' );
 								} else {
 									$product[$id] = $selection->get( 'field_value' );
 								}
