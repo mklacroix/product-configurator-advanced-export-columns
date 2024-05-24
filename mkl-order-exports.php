@@ -139,12 +139,10 @@ class MKL_Export_Fields {
 							}
 						}
 					}
-					// Get the item name. E.g. Farve, or Vaelg overdel 
 	
 				}
-	
-				$new_products_list[$item_id] = $product;
 			}
+			$new_products_list[$item_id] = $product;
 		}
 	
 		return $new_products_list;
