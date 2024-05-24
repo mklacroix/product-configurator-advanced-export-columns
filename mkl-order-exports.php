@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Advanced Order Export For WooCommerce - Add configurator items as columns
-Version: 1.0.1
+Version: 1.0.2
 Author: Marc
 Requires at least: 4.9
 Tested up to: 6.5
