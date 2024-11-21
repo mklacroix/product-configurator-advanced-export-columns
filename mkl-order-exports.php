@@ -1,16 +1,24 @@
 <?php
 /*
 Plugin Name: Advanced Order Export For WooCommerce - Add configurator items as columns
-Version: 1.0.2
+Version: 1.0.3
 Author: Marc
 Requires at least: 4.9
-Tested up to: 6.5
+Tested up to: 6.7
 WC tested up to: 8.8
 */
 
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+/**
+ * Declare HPOS compatibility
+ */
+add_action( 'before_woocommerce_init', function() {
+	if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+	}
+} );
 
 class MKL_Export_Fields {
 	/** Example columns, added programatically */
@@ -151,3 +159,4 @@ class MKL_Export_Fields {
 }
 
 new MKL_Export_Fields();
+
